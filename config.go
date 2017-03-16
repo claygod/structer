@@ -4,11 +4,13 @@ package structer
 // Config
 // Copyright © 2017 Eduard Sesigin. All rights reserved. Contacts: <claygod@yandex.ru>
 
+// Sorting the search result
 const (
 	ASC = iota
 	DESC
 )
 
+// Default slice size
 const RESERVED_SIZE_SLICE int = 100
 
 // Query defailt

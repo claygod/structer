@@ -61,10 +61,10 @@ func newSpec(item interface{}, cId string, cTags []string) (*Spec, error) {
 				s.offsetSortType[t] = TYPE_FLOAT64
 				s.offsetSortPtr[t] = f.Offset
 			default:
-				return nil, errors.New(fmt.Sprintf(`"%s" Field can not be indexed`, t))
+				return nil, fmt.Errorf(`"%s" Field can not be indexed`, t)
 			}
 		} else {
-			return nil, errors.New(fmt.Sprintf(`Incorrect structure field name: "%s"`, t))
+			return nil, fmt.Errorf(`Incorrect structure field name: "%s"`, t)
 		}
 	}
 	return s, nil

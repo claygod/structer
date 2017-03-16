@@ -12,6 +12,7 @@ func newIndex() *Index {
 	return ix
 }
 
+// Index - string keys and number structures in the database
 type Index struct {
 	sync.Mutex
 	arr map[string]int

@@ -10,14 +10,14 @@ import "encoding/gob"
 import "os"
 import "sync"
 
-// New - create a new EmbeDb-struct
-func New(item interface{}, id string, tags []string) (*EmbeDb, error) {
+// New - create a new Structer
+func New(item interface{}, id string, tags []string) (*Structer, error) {
 	spec, err := newSpec(item, id, tags)
 	sortIndexes := spec.getSortIndexes(item)
 	if err != nil {
 		return nil, err
 	}
-	e := &EmbeDb{
+	e := &Structer{
 		tags:    newTags(sortIndexes),
 		spec:    spec,
 		storage: newStorage(),
@@ -26,8 +26,8 @@ func New(item interface{}, id string, tags []string) (*EmbeDb, error) {
 	return e, nil
 }
 
-// EmbeDb
-type EmbeDb struct {
+// Structer - a structures storage
+type Structer struct {
 	sync.Mutex
 	tags    *Tags
 	spec    *Spec
@@ -35,7 +35,8 @@ type EmbeDb struct {
 	index   *Index
 }
 
-func (e *EmbeDb) Add(item interface{}) error {
+// Add - add structure to storage
+func (e *Structer) Add(item interface{}) error {
 	id := e.spec.getId(item)
 	k := e.storage.addItem(item)
 	e.index.addId(id, k)
@@ -44,7 +45,8 @@ func (e *EmbeDb) Add(item interface{}) error {
 	return nil
 }
 
-func (e *EmbeDb) AddUnsafe(item interface{}) error {
+// Add - add structure to storage (unsafe)
+func (e *Structer) AddUnsafe(item interface{}) error {
 	id := e.spec.getId(item)
 	k := e.storage.addItemUnsafe(item)
 	e.index.addIdUnsafe(id, k)
@@ -53,7 +55,8 @@ func (e *EmbeDb) AddUnsafe(item interface{}) error {
 	return nil
 }
 
-func (e *EmbeDb) Update(itemNew interface{}) error {
+// Update - replace structure
+func (e *Structer) Update(itemNew interface{}) error {
 	id := e.spec.getId(itemNew)
 	num := e.index.getNumForId(id)
 	if num < 0 {
@@ -93,7 +96,8 @@ func (e *EmbeDb) Update(itemNew interface{}) error {
 	return nil
 }
 
-func (e *EmbeDb) Del(id string) error {
+// Del - delete structure from storage
+func (e *Structer) Del(id string) error {
 	num := e.index.getNumForId(id)
 	item := e.storage.getItem(num)
 	if item == nil {
@@ -105,12 +109,14 @@ func (e *EmbeDb) Del(id string) error {
 	return nil
 }
 
-func (e *EmbeDb) Get(id string) interface{} {
+// Get - find structure by identifier
+func (e *Structer) Get(id string) interface{} {
 	num := e.index.getNumForId(id)
 	return e.storage.getItem(num)
 }
 
-func (e *EmbeDb) Save(path string) error {
+// Save - save the data store in a file (gob)
+func (e *Structer) Save(path string) error {
 	if e.fileExists(path) {
 		os.Remove(path)
 	}
@@ -138,7 +144,8 @@ func (e *EmbeDb) Save(path string) error {
 	return nil
 }
 
-func (e *EmbeDb) Revision() error {
+// Revision - garbage collection
+func (e *Structer) Revision() error {
 	newDb, err := New(
 		e.spec.item,
 		e.spec.idName,
@@ -161,16 +168,17 @@ func (e *EmbeDb) Revision() error {
 	return nil
 }
 
-func (e *EmbeDb) Select() *Query {
+// Find - create a new search query (by tags)
+func (e *Structer) Find() *Query {
 	return newQuery(e)
 }
 
-func (e *EmbeDb) fileExists(path string) bool {
+func (e *Structer) fileExists(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
 }
 
-func (e *EmbeDb) selectDo(q *Query) []interface{} {
+func (e *Structer) selectDo(q *Query) []interface{} {
 	if len(q.fields) == 0 {
 		return make([]interface{}, 0)
 	}
@@ -178,7 +186,7 @@ func (e *EmbeDb) selectDo(q *Query) []interface{} {
 
 }
 
-func (e *EmbeDb) limitIds(tags []int, from int, how int, asc int) []int {
+func (e *Structer) limitIds(tags []int, from int, how int, asc int) []int {
 	ln := len(tags)
 	if how < 1 || from < 0 || from >= ln { //
 		return []int{}
@@ -210,7 +218,7 @@ func (e *EmbeDb) limitIds(tags []int, from int, how int, asc int) []int {
 
 }
 
-func (e *EmbeDb) limitItems(items []interface{}, from int, how int) []interface{} {
+func (e *Structer) limitItems(items []interface{}, from int, how int) []interface{} {
 	if how > len(items) {
 		how = len(items)
 	}

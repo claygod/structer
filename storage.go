@@ -14,7 +14,7 @@ func newStorage() *Storage {
 	return s
 }
 
-// SubStore - хранилище субструктур (секций)
+// Storage - base of structures
 type Storage struct {
 	sync.Mutex
 	arr []interface{}

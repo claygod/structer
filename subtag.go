@@ -15,7 +15,7 @@ func newSubTag(ords map[string]int) *SubTag {
 		lists: make(map[string][]int),
 		blum:  &Blum{},
 	}
-	for k, _ := range ords {
+	for k := range ords {
 		s.lists[k] = make([]int, 0, RESERVED_SIZE_SLICE)
 	}
 	s.lists[""] = make([]int, 0, RESERVED_SIZE_SLICE)
@@ -168,6 +168,7 @@ func (s *SubTag) getCross(outList []int) ([]int, int) {
 	return outList, cnt
 }
 
+// Blum - hashes
 type Blum [65536]uint8
 
 func (b *Blum) addId(id int) {

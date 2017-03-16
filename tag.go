@@ -29,7 +29,7 @@ func (t *Tags) getTagList() []string {
 	out := make([]string, len(t.subTags))
 	t.Lock()
 	i := 0
-	for k, _ := range t.subTags {
+	for k := range t.subTags {
 		out[i] = k
 		i++
 	}

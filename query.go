@@ -7,7 +7,7 @@ package structer
 //import "log"
 
 // newQuery - create a new Query-struct
-func newQuery(db *EmbeDb) *Query {
+func newQuery(db *Structer) *Query {
 	return &Query{
 		db:     db,
 		fields: make([]string, 0, RESERVED_SIZE_FOR_TAGS),
@@ -18,8 +18,9 @@ func newQuery(db *EmbeDb) *Query {
 	}
 }
 
+// Query - form a query to the database
 type Query struct {
-	db     *EmbeDb
+	db     *Structer
 	fields []string
 	sort   string
 	asc    int
