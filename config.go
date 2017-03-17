@@ -10,7 +10,7 @@ const (
 	DESC
 )
 
-// Default slice size
+// RESERVED_SIZE_SLICE - default slice size
 const RESERVED_SIZE_SLICE int = 100
 
 // Query defailt

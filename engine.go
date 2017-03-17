@@ -45,7 +45,7 @@ func (e *Structer) Add(item interface{}) error {
 	return nil
 }
 
-// Add - add structure to storage (unsafe)
+// AddUnsafe - add structure to storage (unsafe)
 func (e *Structer) AddUnsafe(item interface{}) error {
 	id := e.spec.getId(item)
 	k := e.storage.addItemUnsafe(item)
@@ -81,7 +81,7 @@ func (e *Structer) Update(itemNew interface{}) error {
 	}
 	// формируем список новых тегов
 	listAdd := make([]string, 0)
-	for tag, _ := range arrNew {
+	for tag := range arrNew {
 		listAdd = append(listAdd, tag)
 	}
 	// удаляем старые теги
@@ -201,21 +201,18 @@ func (e *Structer) limitIds(tags []int, from int, how int, asc int) []int {
 			from = ln
 		}
 		return tags[from:to]
-	} else {
-
-		from2 := ln - from - how
-		if from2 > ln {
-			from2 = ln
-		} else if from2 < 0 {
-			from2 = 0
-		}
-		to := ln - from
-		if to > ln {
-			to = ln
-		}
-		return tags[from2:to]
 	}
-
+	from2 := ln - from - how
+	if from2 > ln {
+		from2 = ln
+	} else if from2 < 0 {
+		from2 = 0
+	}
+	to := ln - from
+	if to > ln {
+		to = ln
+	}
+	return tags[from2:to]
 }
 
 func (e *Structer) limitItems(items []interface{}, from int, how int) []interface{} {
