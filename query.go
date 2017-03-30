@@ -37,7 +37,11 @@ func (q *Query) ByFields(where []string) *Query {
 // OrderBy - tag (integer), by which the result will be sorted
 func (q *Query) OrderBy(tag string, asc int) *Query {
 	q.sort = tag
-	q.asc = asc
+	if asc == ASC {
+		q.asc = ASC
+	} else {
+		q.asc = DESC
+	}
 	return q
 }
 
@@ -49,6 +53,6 @@ func (q *Query) Limit(from int, how int) *Query {
 }
 
 // Do - execute request (mandatory option)
-func (q *Query) Do() []interface{} {
+func (q *Query) Do() ([]interface{}, error) {
 	return q.db.selectDo(q)
 }

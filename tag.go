@@ -6,6 +6,8 @@ package structer
 
 import "sync"
 import "sort"
+import "errors"
+import "fmt"
 
 //import "log"
 
@@ -115,4 +117,13 @@ func (t *Tags) delFromTags(tagList []string, id int) {
 			t.Unlock()
 		}
 	}
+}
+
+func (t *Tags) tagsExists(tags []string) error {
+	for _, tag := range tags {
+		if _, ok := t.subTags[tag]; !ok {
+			return errors.New(fmt.Sprintf("The tag `%s` does not exist", tag))
+		}
+	}
+	return nil
 }

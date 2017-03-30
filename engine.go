@@ -9,14 +9,15 @@ import "errors"
 import "encoding/gob"
 import "os"
 import "sync"
+import "fmt"
 
 // New - create a new Structer
 func New(item interface{}, id string, tags []string) (*Structer, error) {
 	spec, err := newSpec(item, id, tags)
-	sortIndexes := spec.getSortIndexes(item)
 	if err != nil {
 		return nil, err
 	}
+	sortIndexes := spec.getSortIndexes(item)
 	e := &Structer{
 		tags:    newTags(sortIndexes),
 		spec:    spec,
@@ -178,11 +179,25 @@ func (e *Structer) fileExists(path string) bool {
 	return !os.IsNotExist(err)
 }
 
-func (e *Structer) selectDo(q *Query) []interface{} {
+func (e *Structer) selectDo(q *Query) ([]interface{}, error) {
+	// Request validation
+	//  len tags
 	if len(q.fields) == 0 {
-		return make([]interface{}, 0)
+		return make([]interface{}, 0), errors.New("Tag list is empty")
 	}
-	return e.storage.listItems(e.limitIds(e.tags.selectByTags(q.fields, q.sort), q.from, q.how, q.asc), q.asc)
+	// tag exists
+	if err := e.tags.tagsExists(q.fields); err != nil {
+		return make([]interface{}, 0), err
+	}
+	// limits
+	if q.from < 0 || q.from >= len(e.index.arr) || q.how < 0 {
+		return make([]interface{}, 0), errors.New("Error in request limits (from, how)")
+	}
+	// sort by
+	if _, ok := e.tags.sortIndexes[q.sort]; !ok {
+		return make([]interface{}, 0), errors.New(fmt.Sprintf("By tag `%s` you can not sort", q.sort))
+	}
+	return e.storage.listItems(e.limitIds(e.tags.selectByTags(q.fields, q.sort), q.from, q.how, q.asc), q.asc), nil
 
 }
 

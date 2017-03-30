@@ -39,27 +39,29 @@ func newSpec(item interface{}, cId string, cTags []string) (*Spec, error) {
 			case reflect.TypeOf(int(1)):
 				s.offsetSortType[t] = TYPE_INT
 				s.offsetSortPtr[t] = f.Offset
-			case reflect.TypeOf(int32(1)):
-				s.offsetSortType[t] = TYPE_INT32
-				s.offsetSortPtr[t] = f.Offset
-			case reflect.TypeOf(int64(1)):
-				s.offsetSortType[t] = TYPE_INT64
-				s.offsetSortPtr[t] = f.Offset
-			case reflect.TypeOf(uint(1)):
-				s.offsetSortType[t] = TYPE_UINT
-				s.offsetSortPtr[t] = f.Offset
-			case reflect.TypeOf(uint32(1)):
-				s.offsetSortType[t] = TYPE_UINT32
-				s.offsetSortPtr[t] = f.Offset
-			case reflect.TypeOf(uint64(1)):
-				s.offsetSortType[t] = TYPE_UINT64
-				s.offsetSortPtr[t] = f.Offset
-			case reflect.TypeOf(float32(1)):
-				s.offsetSortType[t] = TYPE_FLOAT32
-				s.offsetSortPtr[t] = f.Offset
-			case reflect.TypeOf(float64(1)):
-				s.offsetSortType[t] = TYPE_FLOAT64
-				s.offsetSortPtr[t] = f.Offset
+				/*
+					case reflect.TypeOf(int32(1)):
+						s.offsetSortType[t] = TYPE_INT32
+						s.offsetSortPtr[t] = f.Offset
+					case reflect.TypeOf(int64(1)):
+						s.offsetSortType[t] = TYPE_INT64
+						s.offsetSortPtr[t] = f.Offset
+					case reflect.TypeOf(uint(1)):
+						s.offsetSortType[t] = TYPE_UINT
+						s.offsetSortPtr[t] = f.Offset
+					case reflect.TypeOf(uint32(1)):
+						s.offsetSortType[t] = TYPE_UINT32
+						s.offsetSortPtr[t] = f.Offset
+					case reflect.TypeOf(uint64(1)):
+						s.offsetSortType[t] = TYPE_UINT64
+						s.offsetSortPtr[t] = f.Offset
+					case reflect.TypeOf(float32(1)):
+						s.offsetSortType[t] = TYPE_FLOAT32
+						s.offsetSortPtr[t] = f.Offset
+					case reflect.TypeOf(float64(1)):
+						s.offsetSortType[t] = TYPE_FLOAT64
+						s.offsetSortPtr[t] = f.Offset
+				*/
 			default:
 				return nil, fmt.Errorf(`"%s" Field can not be indexed`, t)
 			}
