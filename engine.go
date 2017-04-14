@@ -42,7 +42,8 @@ func (e *Structer) Add(item interface{}) error {
 	k := e.storage.addItem(item)
 	e.index.addId(id, k)
 	tgs := e.spec.getTags(item)
-	e.tags.addToTags(tgs, k)
+	sortIndexes := e.spec.getSortIndexes(item)
+	e.tags.addToTags(tgs, k, sortIndexes)
 	return nil
 }
 
@@ -52,7 +53,8 @@ func (e *Structer) AddUnsafe(item interface{}) error {
 	k := e.storage.addItemUnsafe(item)
 	e.index.addIdUnsafe(id, k)
 	tgs := e.spec.getTags(item)
-	e.tags.addToTagsUnsafe(tgs, k)
+	sortIndexes := e.spec.getSortIndexes(item)
+	e.tags.addToTagsUnsafe(tgs, k, sortIndexes)
 	return nil
 }
 
@@ -92,7 +94,8 @@ func (e *Structer) Update(itemNew interface{}) error {
 	e.storage.updateItem(itemNew, num)
 
 	// добавляем новые теги
-	e.tags.addToTags(listAdd, num)
+	sortIndexes := e.spec.getSortIndexes(itemNew)
+	e.tags.addToTags(listAdd, num, sortIndexes)
 
 	return nil
 }

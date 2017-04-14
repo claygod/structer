@@ -14,7 +14,7 @@ import "fmt"
 // newTags - create a new Tags-struct
 func newTags(sortIndexes map[string]int) *Tags {
 	t := &Tags{
-		subTags:     make(map[string]*SubTag),
+		subTags:     make(map[string]*Mark),
 		sortIndexes: sortIndexes,
 	}
 	return t
@@ -23,7 +23,7 @@ func newTags(sortIndexes map[string]int) *Tags {
 // Tags - store subtags
 type Tags struct {
 	sync.Mutex
-	subTags     map[string]*SubTag
+	subTags     map[string]*Mark
 	sortIndexes map[string]int
 }
 
@@ -60,12 +60,12 @@ func (t *Tags) selectByTags(tagsNames []string, sortKey string) []int {
 		n := int(uint32(tag))
 		tagsOrdered[i] = tagsNames[n]
 	}
-	var outList []int
-	if arr, ok := t.subTags[tagsOrdered[0]].lists[sortKey]; ok {
-		outList = arr
-	} else {
-		outList = t.subTags[tagsOrdered[0]].lists[""]
-	}
+	outList := t.subTags[tagsOrdered[0]].getOrderedList(sortKey)
+	//if arr, ok := t.subTags[tagsOrdered[0]].lists[sortKey]; ok {
+	//	outList = arr
+	//} else {
+	//	outList = t.subTags[tagsOrdered[0]].lists[""]
+	//}
 	cnt := len(outList)
 
 	for i := 1; i < len(tagsOrdered); i++ {
@@ -77,30 +77,31 @@ func (t *Tags) selectByTags(tagsNames []string, sortKey string) []int {
 	return outList[:cnt]
 }
 
-func (t *Tags) addToTags(tagsNames []string, id int) bool {
+func (t *Tags) addToTags(tagsNames []string, id int, sortIndexes map[string]int) bool {
+	//log.Print("===============", sortIndexes)
 	t.Lock()
 	for _, tag := range tagsNames {
 		if _, ok := t.subTags[tag]; !ok {
-			t.subTags[tag] = newSubTag(t.sortIndexes)
+			t.subTags[tag] = newMark(t.sortIndexes)
 		}
 	}
 	t.Unlock()
 	for _, tag := range tagsNames {
-		t.subTags[tag].addId(id)
+		t.subTags[tag].addId(id, sortIndexes)
 	}
 
 	return true
 }
 
-func (t *Tags) addToTagsUnsafe(tagsNames []string, id int) bool {
+func (t *Tags) addToTagsUnsafe(tagsNames []string, id int, sortIndexes map[string]int) bool {
 	for _, tag := range tagsNames {
 		if _, ok := t.subTags[tag]; !ok {
-			t.subTags[tag] = newSubTag(t.sortIndexes)
+			t.subTags[tag] = newMark(t.sortIndexes)
 		}
 
 	}
 	for _, tag := range tagsNames {
-		t.subTags[tag].addUnsafe(id)
+		t.subTags[tag].addUnsafe(id, sortIndexes)
 	}
 
 	return true
