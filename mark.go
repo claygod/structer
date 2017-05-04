@@ -176,7 +176,6 @@ func (m *Mark) getOrderedList(sortKey string) []int {
 	}
 }
 
-/*
 // Blum - hashes
 type Blum [65536]uint8
 
@@ -200,4 +199,3 @@ func (b *Blum) checkId(id int) bool {
 	}
 	return false
 }
-*/
