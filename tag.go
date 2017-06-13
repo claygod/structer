@@ -15,16 +15,17 @@ import "fmt"
 func newTags(sortIndexes map[string]int) *Tags {
 	t := &Tags{
 		subTags:     make(map[string]*Mark),
-		sortIndexes: sortIndexes,
+		mapTagValue: sortIndexes,
 	}
 	return t
 }
 
 // Tags - store subtags
+// Хранилище всех тегов (под каждый тег выделяется Mark)
 type Tags struct {
 	sync.Mutex
 	subTags     map[string]*Mark
-	sortIndexes map[string]int
+	mapTagValue map[string]int // тут нужны только ключи
 }
 
 func (t *Tags) getTagList() []string {
@@ -77,31 +78,31 @@ func (t *Tags) selectByTags(tagsNames []string, sortKey string) []int {
 	return outList[:cnt]
 }
 
-func (t *Tags) addToTags(tagsNames []string, id int, sortIndexes map[string]int) bool {
+func (t *Tags) addToTags(tagsNames []string, id int, mapTagValue map[string]int) bool {
 	//log.Print("===============", sortIndexes)
 	t.Lock()
 	for _, tag := range tagsNames {
 		if _, ok := t.subTags[tag]; !ok {
-			t.subTags[tag] = newMark(t.sortIndexes)
+			t.subTags[tag] = newMark(t.mapTagValue)
 		}
 	}
 	t.Unlock()
 	for _, tag := range tagsNames {
-		t.subTags[tag].addId(id, sortIndexes)
+		t.subTags[tag].addId(id, mapTagValue)
 	}
 
 	return true
 }
 
-func (t *Tags) addToTagsUnsafe(tagsNames []string, id int, sortIndexes map[string]int) bool {
+func (t *Tags) addToTagsUnsafe(tagsNames []string, id int, mapTagValue map[string]int) bool {
 	for _, tag := range tagsNames {
 		if _, ok := t.subTags[tag]; !ok {
-			t.subTags[tag] = newMark(t.sortIndexes)
+			t.subTags[tag] = newMark(t.mapTagValue)
 		}
 
 	}
 	for _, tag := range tagsNames {
-		t.subTags[tag].addUnsafe(id, sortIndexes)
+		t.subTags[tag].addUnsafe(id, mapTagValue)
 	}
 
 	return true

@@ -100,6 +100,7 @@ func (s *Spec) getSortParam(tag string) (int, uintptr, bool) {
 }
 
 func (s *Spec) getTags(item interface{}) []string {
+
 	out := make([]string, 0, RESERVED_SIZE_SLICE)
 	// Root tags
 	for k, t := range s.offsetTagsRoot {
@@ -114,13 +115,16 @@ func (s *Spec) getTags(item interface{}) []string {
 	}
 	return out
 }
-func (s *Spec) getSortIndexes(item interface{}) map[string]int {
+
+// getSortIndexes - получение из структуры массива Имя_тега-Значение_тега
+// Example: Date-223423432
+func (s *Spec) getMapTagValue(item interface{}) map[string]int {
 	// параметры для индексации под сортировку
-	sortIndexes := make(map[string]int)
+	mapTagValue := make(map[string]int)
 	for k, t := range s.offsetSortPtr {
-		sortIndexes[k] = *(*int)(unsafe.Pointer(uintptr(unsafe.Pointer((*iface)(unsafe.Pointer(&item)).data)) + t))
+		mapTagValue[k] = *(*int)(unsafe.Pointer(uintptr(unsafe.Pointer((*iface)(unsafe.Pointer(&item)).data)) + t))
 	}
-	return sortIndexes
+	return mapTagValue
 }
 
 func (s *Spec) parseFields(item interface{}, fields []string) error {

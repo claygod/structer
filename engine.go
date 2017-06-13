@@ -17,9 +17,9 @@ func New(item interface{}, id string, tags []string) (*Structer, error) {
 	if err != nil {
 		return nil, err
 	}
-	sortIndexes := spec.getSortIndexes(item)
+	mapTagValue := spec.getMapTagValue(item)
 	e := &Structer{
-		tags:    newTags(sortIndexes),
+		tags:    newTags(mapTagValue),
 		spec:    spec,
 		storage: newStorage(),
 		index:   newIndex(),
@@ -38,12 +38,14 @@ type Structer struct {
 
 // Add - add structure to storage
 func (e *Structer) Add(item interface{}) error {
+	mapTagValue := e.spec.getMapTagValue(item)
+	// тут должна быть проверка на размер значений - не больше 32-битного int
 	id := e.spec.getId(item)
 	k := e.storage.addItem(item)
 	e.index.addId(id, k)
 	tgs := e.spec.getTags(item)
-	sortIndexes := e.spec.getSortIndexes(item)
-	e.tags.addToTags(tgs, k, sortIndexes)
+	// mapTagValue := e.spec.getMapTagValue(item)
+	e.tags.addToTags(tgs, k, mapTagValue)
 	return nil
 }
 
@@ -53,8 +55,8 @@ func (e *Structer) AddUnsafe(item interface{}) error {
 	k := e.storage.addItemUnsafe(item)
 	e.index.addIdUnsafe(id, k)
 	tgs := e.spec.getTags(item)
-	sortIndexes := e.spec.getSortIndexes(item)
-	e.tags.addToTagsUnsafe(tgs, k, sortIndexes)
+	mapTagValue := e.spec.getMapTagValue(item)
+	e.tags.addToTagsUnsafe(tgs, k, mapTagValue)
 	return nil
 }
 
@@ -94,8 +96,8 @@ func (e *Structer) Update(itemNew interface{}) error {
 	e.storage.updateItem(itemNew, num)
 
 	// добавляем новые теги
-	sortIndexes := e.spec.getSortIndexes(itemNew)
-	e.tags.addToTags(listAdd, num, sortIndexes)
+	mapTagValue := e.spec.getMapTagValue(itemNew)
+	e.tags.addToTags(listAdd, num, mapTagValue)
 
 	return nil
 }
@@ -197,7 +199,7 @@ func (e *Structer) selectDo(q *Query) ([]interface{}, error) {
 		return make([]interface{}, 0), errors.New("Error in request limits (from, how)")
 	}
 	// sort by
-	if _, ok := e.tags.sortIndexes[q.sort]; !ok {
+	if _, ok := e.tags.mapTagValue[q.sort]; !ok {
 		return make([]interface{}, 0), errors.New(fmt.Sprintf("By tag `%s` you can not sort", q.sort))
 	}
 	return e.storage.listItems(e.limitIds(e.tags.selectByTags(q.fields, q.sort), q.from, q.how, q.asc), q.asc), nil

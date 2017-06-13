@@ -8,14 +8,14 @@ import "sync"
 
 //import "log"
 
-func newMark(ords map[string]int) *Mark {
-	//log.Print("Субтег получил список ords: ", ords)
+func newMark(mapTagValue map[string]int) *Mark {
+	//log.Print("Субтег получил список mapTagValue: ", mapTagValue)
 	m := &Mark{
 		arr:   make(map[int]bool),
 		lists: make(map[string][]int),
 		blum:  &Blum{},
 	}
-	for k := range ords {
+	for k := range mapTagValue {
 		m.lists[k] = make([]int, 0, RESERVED_SIZE_SLICE)
 	}
 	m.lists[""] = make([]int, 0, RESERVED_SIZE_SLICE)
@@ -23,16 +23,20 @@ func newMark(ords map[string]int) *Mark {
 }
 
 // Mark - Repository of sub-tags (sections)
+// Хранит массив id и списки по ключам-тегам
 type Mark struct {
 	sync.Mutex
-	count       int
-	arr         map[int]bool
-	lists       map[string][]int
-	blum        *Blum
-	sortIndexes map[string]int
+	count int
+	arr   map[int]bool
+	lists map[string][]int
+	blum  *Blum
+	//sortIndexes map[string]int
 }
 
-func (m *Mark) addId(id int, sortIndexes map[string]int) bool {
+// addId - добавление конкретного id, закреплённого за структурой и извлечённой
+// из неё map[Название_поля_тега]значение_поля_структуры (добавляемой)
+func (m *Mark) addId(id int, mapTagValue map[string]int) bool {
+	//log.Print("!!!", mapTagValue)
 	m.Lock()
 	if _, ok := m.arr[id]; ok {
 		m.Unlock()
@@ -41,7 +45,7 @@ func (m *Mark) addId(id int, sortIndexes map[string]int) bool {
 	m.arr[id] = true
 	m.blum.addId(id)
 	// в v значения по которым сортировать
-	for k, v := range sortIndexes {
+	for k, v := range mapTagValue {
 		v2 := int(uint64(uint32(int32(v)))<<32 + uint64(uint32(id)))
 		if arr, ok := m.lists[k]; ok {
 			if len(arr) == 0 {
@@ -82,14 +86,14 @@ func (m *Mark) addId(id int, sortIndexes map[string]int) bool {
 	m.Unlock()
 	return true
 }
-func (m *Mark) addUnsafe(id int, sortIndexes map[string]int) bool {
+func (m *Mark) addUnsafe(id int, mapTagValue map[string]int) bool {
 	if _, ok := m.arr[id]; ok {
 		return false
 	}
 	m.arr[id] = true
 	m.blum.addId(id)
 	// в v значения по которым сортировать
-	for k, v := range sortIndexes {
+	for k, v := range mapTagValue {
 		v2 := int(uint64(uint32(int32(v)))<<32 + uint64(uint32(id)))
 		if arr, ok := m.lists[k]; ok {
 			if len(arr) == 0 {
