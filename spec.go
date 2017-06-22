@@ -14,30 +14,31 @@ import "fmt"
 // newSpec - create a new Spec-struct
 func newSpec(item interface{}, cId string, cTags []string) (*Spec, error) {
 	s := &Spec{
-		item:            item,
-		idName:          cId,
-		fields:          make(map[string]field),
-		offsetSortType:  make(map[string]int),
+		item:   item, // здесь структура как образец и т.д. (пригодится при проведении ревизиив движке)
+		idName: cId,  // название поля, из которого будет браться id структур
+		//fields:          make(map[string]field),
+		//offsetSortType:  make(map[string]int),
 		offsetSortPtr:   make(map[string]uintptr),
 		offsetTagsRoot:  make(map[string]uintptr),
 		offsetTagsSlice: make(map[string]uintptr),
 		sourceTags:      cTags,
 	}
-	if err := s.parseFields(item, cTags); err != nil {
+	fStore, err := s.parseFields(item, cTags)
+	if err != nil {
 		return nil, err
 	}
 	// Устанавливаем смещение для Id
-	s.offsetId = s.fields[cId].Offset
+	s.offsetId = fStore[cId].Offset
 	// Устанавливаем смещения
 	for _, t := range cTags {
-		if f, ok := s.fields[t]; ok {
+		if f, ok := fStore[t]; ok {
 			switch f.Type {
 			case reflect.TypeOf(""):
 				s.offsetTagsRoot[t] = f.Offset
 			case reflect.TypeOf([]string{}):
 				s.offsetTagsSlice[t] = f.Offset
 			case reflect.TypeOf(int(1)):
-				s.offsetSortType[t] = TYPE_INT
+				//s.offsetSortType[t] = TYPE_INT
 				s.offsetSortPtr[t] = f.Offset
 				/*
 					case reflect.TypeOf(int32(1)):
@@ -74,31 +75,32 @@ func newSpec(item interface{}, cId string, cTags []string) (*Spec, error) {
 
 // Spec - спецификация
 type Spec struct {
-	item            interface{}
-	itemName        string
-	itemType        reflect.Type
-	idName          string
-	offsetId        uintptr
-	offsetSortType  map[string]int
+	item interface{} // здесь структура как образец и т.д. (пригодится при проведении ревизиив движке)
+	// itemName        string      //  yfpdfybt cnhernehs
+	// itemType        reflect.Type
+	idName   string  // название поля, из которого будет браться id структур
+	offsetId uintptr // смещение для поля (строкового), которое мы назначили в структуре айдишником
+	//offsetSortType  map[string]int
 	offsetSortPtr   map[string]uintptr
-	offsetTagsRoot  map[string]uintptr
-	offsetTagsSlice map[string]uintptr
-	fields          map[string]field
-	test            interface{}
-	sourceTags      []string //полученный при создании список тегов
+	offsetTagsRoot  map[string]uintptr // список смещений для тегов, которые в корне в виде строки
+	offsetTagsSlice map[string]uintptr // список смещений для тегов, которые в корне в виде слайса (списка строковых тегов)
+	//fields          map[string]field   // для каждого поля - имя тип и сдвиг (смещение)
+	// test       interface{}
+	sourceTags []string //полученный при создании список тегов (пригодится при создании ревизии)
 }
 
 func (s *Spec) getId(item interface{}) string {
 	return *(*string)(unsafe.Pointer(uintptr(unsafe.Pointer((*iface)(unsafe.Pointer(&item)).data)) + s.offsetId))
 }
 
+/*
 func (s *Spec) getSortParam(tag string) (int, uintptr, bool) {
 	if tp, ok := s.offsetSortType[tag]; ok {
 		return tp, s.offsetSortPtr[tag], true
 	}
 	return 0, 0, false
 }
-
+*/
 func (s *Spec) getTags(item interface{}) []string {
 
 	out := make([]string, 0, RESERVED_SIZE_SLICE)
@@ -127,25 +129,31 @@ func (s *Spec) getMapTagValue(item interface{}) map[string]int {
 	return mapTagValue
 }
 
-func (s *Spec) parseFields(item interface{}, fields []string) error {
+func (s *Spec) parseFields(item interface{}, fields []string) (map[string]field, error) {
+	fStore := make(map[string]field)
 	t1 := reflect.TypeOf(item)
 	v1 := reflect.ValueOf(item)
 	v1 = reflect.Indirect(v1)
-	s.itemType = v1.Type()
+	// s.itemType = v1.Type()
 	for _, key := range fields {
 		if t2, ok := t1.FieldByName(key); ok {
-			s.fields[t2.Name] = field{
+			//s.fields[t2.Name] = field{
+			//	Name:   t2.Name,
+			//	Type:   t2.Type,
+			//	Offset: t2.Offset,
+			//}
+			fStore[t2.Name] = field{
 				Name:   t2.Name,
 				Type:   t2.Type,
 				Offset: t2.Offset,
 			}
 		} else {
-			return errors.New("This field in the structure is not")
+			return nil, errors.New("This field in the structure is not")
 		}
 
 	}
-	s.offsetId = s.fields["Id"].Offset
-	return nil
+	s.offsetId = fStore["Id"].Offset // s.fields["Id"].Offset
+	return fStore, nil
 }
 
 // field structure

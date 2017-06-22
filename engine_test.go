@@ -892,7 +892,13 @@ func BenchmarkEngineSelect256Parallel(b *testing.B) {
 }
 
 /*
- */
+=== laptop
+BenchmarkEngineAdd-4                 	  300000	      6327 ns/op
+BenchmarkEngineAddParallel-4         	  500000	      4294 ns/op
+BenchmarkEngineSelect256-4           	  200000	      6680 ns/op
+BenchmarkEngineSelect256Parallel-4   	  500000	      4044 ns/op
+===
+*/
 /*
 const POOL_DEGREE uint64 = 16
 BenchmarkEngineAdd-4              	  500000	      4562 ns/op
