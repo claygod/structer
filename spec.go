@@ -14,10 +14,8 @@ import "fmt"
 // newSpec - create a new Spec-struct
 func newSpec(item interface{}, cId string, cTags []string) (*Spec, error) {
 	s := &Spec{
-		item:   item, // здесь структура как образец и т.д. (пригодится при проведении ревизиив движке)
-		idName: cId,  // название поля, из которого будет браться id структур
-		//fields:          make(map[string]field),
-		//offsetSortType:  make(map[string]int),
+		item:            item, // здесь структура как образец и т.д. (пригодится при проведении ревизиив движке)
+		idName:          cId,  // название поля, из которого будет браться id структур
 		offsetSortPtr:   make(map[string]uintptr),
 		offsetTagsRoot:  make(map[string]uintptr),
 		offsetTagsSlice: make(map[string]uintptr),
@@ -38,31 +36,7 @@ func newSpec(item interface{}, cId string, cTags []string) (*Spec, error) {
 			case reflect.TypeOf([]string{}):
 				s.offsetTagsSlice[t] = f.Offset
 			case reflect.TypeOf(int(1)):
-				//s.offsetSortType[t] = TYPE_INT
 				s.offsetSortPtr[t] = f.Offset
-				/*
-					case reflect.TypeOf(int32(1)):
-						s.offsetSortType[t] = TYPE_INT32
-						s.offsetSortPtr[t] = f.Offset
-					case reflect.TypeOf(int64(1)):
-						s.offsetSortType[t] = TYPE_INT64
-						s.offsetSortPtr[t] = f.Offset
-					case reflect.TypeOf(uint(1)):
-						s.offsetSortType[t] = TYPE_UINT
-						s.offsetSortPtr[t] = f.Offset
-					case reflect.TypeOf(uint32(1)):
-						s.offsetSortType[t] = TYPE_UINT32
-						s.offsetSortPtr[t] = f.Offset
-					case reflect.TypeOf(uint64(1)):
-						s.offsetSortType[t] = TYPE_UINT64
-						s.offsetSortPtr[t] = f.Offset
-					case reflect.TypeOf(float32(1)):
-						s.offsetSortType[t] = TYPE_FLOAT32
-						s.offsetSortPtr[t] = f.Offset
-					case reflect.TypeOf(float64(1)):
-						s.offsetSortType[t] = TYPE_FLOAT64
-						s.offsetSortPtr[t] = f.Offset
-				*/
 			default:
 				return nil, fmt.Errorf(`"%s" Field can not be indexed`, t)
 			}
@@ -75,32 +49,19 @@ func newSpec(item interface{}, cId string, cTags []string) (*Spec, error) {
 
 // Spec - спецификация
 type Spec struct {
-	item interface{} // здесь структура как образец и т.д. (пригодится при проведении ревизиив движке)
-	// itemName        string      //  yfpdfybt cnhernehs
-	// itemType        reflect.Type
-	idName   string  // название поля, из которого будет браться id структур
-	offsetId uintptr // смещение для поля (строкового), которое мы назначили в структуре айдишником
-	//offsetSortType  map[string]int
+	item            interface{} // здесь структура как образец и т.д. (пригодится при проведении ревизиив движке)
+	idName          string      // название поля, из которого будет браться id структур
+	offsetId        uintptr     // смещение для поля (строкового), которое мы назначили в структуре айдишником
 	offsetSortPtr   map[string]uintptr
 	offsetTagsRoot  map[string]uintptr // список смещений для тегов, которые в корне в виде строки
 	offsetTagsSlice map[string]uintptr // список смещений для тегов, которые в корне в виде слайса (списка строковых тегов)
-	//fields          map[string]field   // для каждого поля - имя тип и сдвиг (смещение)
-	// test       interface{}
-	sourceTags []string //полученный при создании список тегов (пригодится при создании ревизии)
+	sourceTags      []string           //полученный при создании список тегов (пригодится при создании ревизии)
 }
 
 func (s *Spec) getId(item interface{}) string {
 	return *(*string)(unsafe.Pointer(uintptr(unsafe.Pointer((*iface)(unsafe.Pointer(&item)).data)) + s.offsetId))
 }
 
-/*
-func (s *Spec) getSortParam(tag string) (int, uintptr, bool) {
-	if tp, ok := s.offsetSortType[tag]; ok {
-		return tp, s.offsetSortPtr[tag], true
-	}
-	return 0, 0, false
-}
-*/
 func (s *Spec) getTags(item interface{}) []string {
 
 	out := make([]string, 0, RESERVED_SIZE_SLICE)
@@ -134,14 +95,8 @@ func (s *Spec) parseFields(item interface{}, fields []string) (map[string]field,
 	t1 := reflect.TypeOf(item)
 	v1 := reflect.ValueOf(item)
 	v1 = reflect.Indirect(v1)
-	// s.itemType = v1.Type()
 	for _, key := range fields {
 		if t2, ok := t1.FieldByName(key); ok {
-			//s.fields[t2.Name] = field{
-			//	Name:   t2.Name,
-			//	Type:   t2.Type,
-			//	Offset: t2.Offset,
-			//}
 			fStore[t2.Name] = field{
 				Name:   t2.Name,
 				Type:   t2.Type,
