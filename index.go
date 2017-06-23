@@ -15,7 +15,8 @@ func newIndex() *Index {
 // Index - string keys and number structures in the database
 type Index struct {
 	sync.Mutex
-	arr map[string]int
+	arr     map[string]int
+	deleted int
 }
 
 func (ix *Index) addId(id string, num int) bool {
@@ -45,6 +46,7 @@ func (ix *Index) delId(id string) bool {
 		return false
 	}
 	delete(ix.arr, id)
+	ix.deleted++
 	ix.Unlock()
 	return true
 }
@@ -57,4 +59,12 @@ func (ix *Index) getNumForId(id string) int {
 	}
 	ix.Unlock()
 	return ix.arr[id]
+}
+
+func (ix *Index) countAndDeleted() (int, int) {
+	ix.Lock()
+	count := len(ix.arr)
+	deleted := ix.deleted
+	ix.Unlock()
+	return count, deleted
 }

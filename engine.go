@@ -187,6 +187,12 @@ func (e *Structer) Find() *Query {
 	return newQuery(e)
 }
 
+// Count - number of stored structures
+func (e *Structer) Count() int {
+	cnt, _ := e.index.countAndDeleted()
+	return cnt
+}
+
 func (e *Structer) fileExists(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
