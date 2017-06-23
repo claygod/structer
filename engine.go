@@ -12,6 +12,11 @@ import "sync"
 import "fmt"
 
 // New - create a new Structer
+// item - это образец хранящейся структуры
+// id - имя поля, которое будет id это поле должно быть строковым)
+// tags - список тегов, это должны быть только  int, string, []string поля структуры
+// из по int полям можно будет потом сортировать, а по string и []string делать
+// запросы на выборки.
 func New(item interface{}, id string, tags []string) (*Structer, error) {
 	spec, err := newSpec(item, id, tags)
 	if err != nil {
