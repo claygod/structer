@@ -22,7 +22,7 @@ func New(item interface{}, id string, tags []string) (*Structer, error) {
 	if err != nil {
 		return nil, err
 	}
-	mapTagValue := spec.getMapTagValue(item)
+	mapTagValue := spec.getSortTags(item)
 	e := &Structer{
 		tags:    newTags(mapTagValue),
 		spec:    spec,
@@ -43,8 +43,11 @@ type Structer struct {
 
 // Add - add structure to storage
 func (e *Structer) Add(item interface{}) error {
-	mapTagValue := e.spec.getMapTagValue(item)
-	// тут должна быть проверка на размер значений - не больше 32-битного int
+	mapTagValue := e.spec.getSortTags(item)
+	// проверка на размер значений - не больше 32-битного int
+	if err := e.checkSortTagSize(mapTagValue); err != nil {
+		return err
+	}
 	id := e.spec.getId(item)
 	k := e.storage.addItem(item)
 	e.index.addId(id, k)
@@ -60,7 +63,7 @@ func (e *Structer) AddUnsafe(item interface{}) error {
 	k := e.storage.addItemUnsafe(item)
 	e.index.addIdUnsafe(id, k)
 	tgs := e.spec.getTags(item)
-	mapTagValue := e.spec.getMapTagValue(item)
+	mapTagValue := e.spec.getSortTags(item)
 	e.tags.addToTagsUnsafe(tgs, k, mapTagValue)
 	return nil
 }
@@ -101,7 +104,7 @@ func (e *Structer) Update(itemNew interface{}) error {
 	e.storage.updateItem(itemNew, num)
 
 	// добавляем новые теги
-	mapTagValue := e.spec.getMapTagValue(itemNew)
+	mapTagValue := e.spec.getSortTags(itemNew)
 	e.tags.addToTags(listAdd, num, mapTagValue)
 
 	return nil
@@ -240,6 +243,7 @@ func (e *Structer) limitIds(tags []int, from int, how int, asc int) []int {
 	return tags[from2:to]
 }
 
+/*
 func (e *Structer) limitItems(items []interface{}, from int, how int) []interface{} {
 	if how > len(items) {
 		how = len(items)
@@ -248,4 +252,15 @@ func (e *Structer) limitItems(items []interface{}, from int, how int) []interfac
 		from = len(items)
 	}
 	return items[from:how]
+}
+*/
+
+// checkSortTagSize - проверка размера int, не должен быть больше 32 бит
+func (e *Structer) checkSortTagSize(mapTagValue map[string]int) error {
+	for k, v := range mapTagValue {
+		if v > 2147483647 {
+			return errors.New(fmt.Sprintf("The value of the field `%s` for sorting exceeds 2147483647", k))
+		}
+	}
+	return nil
 }
