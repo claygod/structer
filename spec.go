@@ -81,7 +81,7 @@ func (s *Spec) getTags(item interface{}) []string {
 
 // getSortIndexes - получение из структуры массива Имя_тега-Значение_тега
 // Example: Date-223423432
-func (s *Spec) getMapTagValue(item interface{}) map[string]int {
+func (s *Spec) getSortTags(item interface{}) map[string]int {
 	// параметры для индексации под сортировку
 	mapTagValue := make(map[string]int)
 	for k, t := range s.offsetSortPtr {

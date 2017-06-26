@@ -27,8 +27,8 @@ func newMark(mapTagValue map[string]int) *Mark {
 type Mark struct {
 	sync.Mutex
 	count int
-	arr   map[int]bool
-	lists map[string][]int
+	arr   map[int]bool     // массив ID структуры (id формируется структером, а не данными из структуры)
+	lists map[string][]int // списки по ключам
 	blum  *Blum
 	//sortIndexes map[string]int
 }
