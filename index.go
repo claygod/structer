@@ -6,6 +6,8 @@ package structer
 
 import "sync"
 
+//import "log"
+
 // newIndex - create a new Index-struct
 func newIndex() *Index {
 	ix := &Index{arr: make(map[string]int)}
@@ -41,12 +43,14 @@ func (ix *Index) addIdUnsafe(id string, num int) bool {
 
 func (ix *Index) delId(id string) bool {
 	ix.Lock()
+	//log.Print("BEFORE del: ", ix.arr)
 	if _, ok := ix.arr[id]; !ok {
 		ix.Unlock()
 		return false
 	}
 	delete(ix.arr, id)
 	ix.deleted++
+	//log.Print("AFTER del: ", ix.arr)
 	ix.Unlock()
 	return true
 }

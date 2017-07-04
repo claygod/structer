@@ -169,15 +169,21 @@ func (e *Structer) Revision() error {
 		return err
 	}
 
-	oldDb := e
-	oldDb.Lock()
+	e.Lock()
+	//fmt.Print("\r\n В старой базе): ", len(e.storage.arr))
 	for _, v := range e.storage.arr {
 		if _, ok := e.index.arr[e.spec.getId(v)]; ok {
 			newDb.AddUnsafe(v)
 		}
 	}
-	oldDb.Unlock()
-	e = newDb
+	//fmt.Print("\r\n В новой базе): ", len(newDb.storage.arr))
+	e.index = newDb.index
+	e.spec = newDb.spec
+	e.storage = newDb.storage
+	e.tags = newDb.tags
+	e.Unlock()
+
+	//e = newDb
 
 	return nil
 }
@@ -191,6 +197,13 @@ func (e *Structer) Find() *Query {
 func (e *Structer) Count() int {
 	cnt, _ := e.index.countAndDeleted()
 	return cnt
+}
+
+// Fragmentation - percentage of fragmentation, the ratio of the unfragmented amount to the total.
+func (e *Structer) Fragmentation() int {
+	cnt, dltd := e.index.countAndDeleted()
+	//fmt.Print("\r\n ==== ", cnt, dltd)
+	return dltd * 100 / (cnt + dltd)
 }
 
 func (e *Structer) fileExists(path string) bool {

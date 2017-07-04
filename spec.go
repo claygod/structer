@@ -14,7 +14,7 @@ import "fmt"
 // newSpec - create a new Spec-struct
 func newSpec(item interface{}, cId string, cTags []string) (*Spec, error) {
 	s := &Spec{
-		item:            item, // здесь структура как образец и т.д. (пригодится при проведении ревизиив движке)
+		item:            item, // здесь структура как образец и т.д. (пригодится при проведении ревизии в движке)
 		idName:          cId,  // название поля, из которого будет браться id структур
 		offsetSortPtr:   make(map[string]uintptr),
 		offsetTagsRoot:  make(map[string]uintptr),

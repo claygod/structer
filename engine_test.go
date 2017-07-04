@@ -4,7 +4,7 @@ package structer
 // Tests and benchmarks
 // Copyright © 2017 Eduard Sesigin. All rights reserved. Contacts: <claygod@yandex.ru>
 
-//import "fmt"
+import "fmt"
 import "testing"
 import "os"
 import "encoding/gob"
@@ -18,12 +18,12 @@ import "time"
 //import "reflect"
 
 //import "unsafe"
-
+/*
 func TestInt64ToInt32(t *testing.T) {
 	var x int64 = -5
 	log.Print("Сконвертировали `-5` из int64 b int32 и получили: ", int32(x))
 }
-
+*/
 func TestEngine(t *testing.T) {
 	a := Article{
 		Id:    "a1",
@@ -148,8 +148,8 @@ func TestSelect(t *testing.T) {
 		s.Add(a)
 	}
 
-	log.Print("Start TEST! ", time.Now().UnixNano())
-	tStart := time.Now().UnixNano()
+	//log.Print("Start TEST! ", time.Now().UnixNano())
+	//tStart := time.Now().UnixNano()
 
 	rez2, _ := s.Find().
 		ByFields([]string{"TagsNews", "TagsMay"}).
@@ -157,9 +157,13 @@ func TestSelect(t *testing.T) {
 		Limit(0, 600).
 		Do()
 
-	tStart2 := time.Now().UnixNano()
-	log.Print("Время проведения теста(2) ", tStart2-tStart)
-	log.Print("Результат теста(2)", len(rez2))
+		//tStart2 := time.Now().UnixNano()
+		//log.Print("Время проведения теста(2) ", tStart2-tStart)
+		//log.Print("Результат теста(2)", len(rez2))
+
+	if len(rez2) != 500 {
+		t.Error(fmt.Sprintf("Ошибка SELECT. Ожидаемое значение 500 а полученное: %i", len(rez2)))
+	}
 }
 
 func TestDel(t *testing.T) {
@@ -180,7 +184,8 @@ func TestDel(t *testing.T) {
 		s.Add(a)
 	}
 
-	log.Print("Start DEL! ", time.Now().UnixNano())
+	// log.Print("Start DEL! ", time.Now().UnixNano())
+	log.Print("Фрагментированно(0): ", s.Fragmentation(), " ", s.Count())
 	s.Del("a1")
 	s.Del("a2")
 
@@ -189,7 +194,13 @@ func TestDel(t *testing.T) {
 		OrderBy("Date", ASC).
 		Limit(0, 600).
 		Do()
-	log.Print("Результат теста по удалению: ", len(rez2), " ", rez2)
+	if len(rez2) != 3 {
+		t.Error(fmt.Sprintf("Ошибка удаления. Ожидаемое значение 3 а полученное: %i", len(rez2)))
+	}
+	// log.Print("Результат теста по удалению: ", len(rez2), " ", rez2)
+	log.Print("Фрагментированно(1): ", s.Fragmentation(), " ", s.Count())
+	s.Revision()
+	log.Print("Фрагментированно(2): ", s.Fragmentation(), " ", s.Count())
 }
 
 func TestUpdate(t *testing.T) {
@@ -216,7 +227,7 @@ func TestUpdate(t *testing.T) {
 	a.Rate = 771
 	s.Add(a)
 
-	log.Print("Start UPDATE! ", time.Now().UnixNano())
+	// log.Print("Start UPDATE! ", time.Now().UnixNano())
 	a.Id = "a4"
 	a.Date = 244777201
 	a.Rate = 999
@@ -227,7 +238,17 @@ func TestUpdate(t *testing.T) {
 		OrderBy("Rate", ASC).
 		Limit(0, 600).
 		Do()
-	log.Print("Результат теста по изменению: ", len(rez2), " ", rez2)
+	// log.Print("Результат теста по изменению: ", len(rez2), " ", rez2)
+
+	for _, art := range rez2 {
+		art2 := art.(Article)
+		if art2.Id == "a7" && art2.Rate != 772 {
+			t.Error(fmt.Sprintf("Ошибка UPDATE. Ожидаемое значение 772 а полученное: %i", art2.Rate))
+		}
+		if art2.Id == "a4" && art2.Rate != 999 {
+			t.Error(fmt.Sprintf("Ошибка UPDATE. Ожидаемое значение 999 а полученное: %i", art2.Rate))
+		}
+	}
 }
 
 func TestGet(t *testing.T) {
