@@ -42,6 +42,9 @@ type Structer struct {
 }
 
 // Add - add structure to storage
+// This function is unsafe, since the user "outside"
+// can change or delete the structure,
+// and the database will not know anything about it.
 func (e *Structer) Add(item interface{}) error {
 	mapTagValue := e.spec.getSortTags(item)
 	// проверка на размер значений - не больше 32-битного int
