@@ -1,6 +1,7 @@
 # Structer
 
 Storage for structures (embedded), with the ability to search by field structure.
+This library is unsafe.
 
 [![API documentation](https://godoc.org/github.com/claygod/structer?status.svg)](https://godoc.org/github.com/claygod/structer)
 [![Go Report Card](https://goreportcard.com/badge/github.com/claygod/structer)](https://goreportcard.com/report/github.com/claygod/structer)
